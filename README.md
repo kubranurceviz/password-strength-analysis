@@ -1,4 +1,4 @@
-# password-strength-analysis
+# Password Strength Analysis
 
 This project is a Flask web application that analyzes the strength of a user's password. It evaluates whether the password is strong, checks for the inclusion of common words and names, and estimates the time required to crack it.
 
@@ -41,4 +41,4 @@ Düzenle
 http://127.0.0.1:5000
 You can input a password through the web interface or send a request to the API endpoint for JSON output.
 
-Çekme istekleri oluşturarak veya sorunları bildirerek katkıda bulunmaktan çekinmeyin.
+Feel free to contribute by creating pull requests or reporting issues.
