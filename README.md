@@ -26,18 +26,15 @@ cd password-strength-analysis
 python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
+
 Usage
 Run the application with:
 
-bash
-Kopyala
-Düzenle
+
 python app.py
 Then open your browser and navigate to:
 
-cpp
-Kopyala
-Düzenle
+
 http://127.0.0.1:5000
 You can input a password through the web interface or send a request to the API endpoint for JSON output.
 
