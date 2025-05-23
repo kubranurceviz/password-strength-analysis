@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Şifre Güç Analizi</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <canvas id="matrix"></canvas>
+    <div class="container">
+        <h1>ŞİFRE GÜÇ ANALİZİ</h1>
+        
+        <div class="password-container">
+            <input type="password" id="passwordInput" placeholder="Şifrenizi yazın" autocomplete="off">
+            <button class="toggle-visibility" id="toggleVisibility">👁</button>
+        </div>
+        
+        <button id="checkBtn">KONTROL ET</button>
+        
+        <div id="result">
+            <div class="progress-container">
+                <div id="progressBar"></div>
+            </div>
+            <div class="strength-text" id="strengthText"></div>
+            <div class="details">
+                <div>Uzunluk: <span id="lengthValue">0</span></div>
+                <div>Büyük Harf: <span id="upperValue">❌</span></div>
+                <div>Özel Karakter: <span id="specialValue">❌</span></div>
+                <div>Rakam: <span id="numberValue">❌</span></div>
+            </div>
+            <div class="time-to-crack" id="timeToCrack"></div>
+            <div class="issues" id="issuesText"></div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/matrix.js') }}"></script>
+    <script>
+        document.getElementById('checkBtn').addEventListener('click', async function() {
+            const password = document.getElementById('passwordInput').value;
+            const resultDiv = document.getElementById('result');
+            
+            if (!password) {
+                resultDiv.style.display = 'none';
+                return;
+            }
+            
+            try {
+                const response = await fetch('/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `password=${encodeURIComponent(password)}`
+                });
+                
+                if (!response.ok) throw new Error('Network error');
+                const data = await response.json();
+                
+                resultDiv.style.display = 'block';
+                updateUI(data);
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Bir hata oluştu, lütfen tekrar deneyin');
+            }
+        });
+
+        function updateUI(data) {
+            // Progress bar
+            const progress = Math.min(100, data.score * 10);
+            const progressBar = document.getElementById('progressBar');
+            progressBar.style.width = `${progress}%`;
+            
+            // Strength colors
+            const colors = {
+                'ÇOK ZAYIF': '#f00',
+                'ZAYIF': '#ff6600',
+                'ORTA': '#ff0',
+                'GÜÇLÜ': '#0a0',
+                'ÇOK GÜÇLÜ': '#0f0'
+            };
+            progressBar.style.background = colors[data.strength];
+            
+            // Strength text
+            const strengthText = document.getElementById('strengthText');
+            strengthText.textContent = data.strength;
+            strengthText.className = `strength-text ${data.strength.toLowerCase().replace(' ', '-')}`;
+            
+            // Details
+            document.getElementById('lengthValue').textContent = data.length;
+            document.getElementById('upperValue').textContent = data.has_upper ? '✅' : '❌';
+            document.getElementById('specialValue').textContent = data.has_special ? '✅' : '❌';
+            document.getElementById('numberValue').textContent = data.has_number ? '✅' : '❌';
+            document.getElementById('timeToCrack').textContent = `Tahmini Kırılma Süresi: ${data.time_to_crack}`;
+            
+            // Issues
+            const issuesText = document.getElementById('issuesText');
+            issuesText.innerHTML = data.issues.length 
+                ? `<strong>Sorunlar:</strong><ul>${data.issues.map(i => `<li>${i}</li>`).join('')}</ul>`
+                : '<span style="color:#0f0">✔️ Mükemmel şifre</span>';
+        }
+
+        // Şifre görünürlüğü
+        document.getElementById('toggleVisibility').addEventListener('click', function() {
+            const input = document.getElementById('passwordInput');
+            input.type = input.type === 'password' ? 'text' : 'password';
+        });
+    </script>
+</body>
+</html>
